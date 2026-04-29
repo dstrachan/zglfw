@@ -34,10 +34,18 @@ pub fn build(b: *std.Build) void {
 
     const options_module = options_step.createModule();
 
+    const translate_c = b.addTranslateC(.{
+        .root_source_file = b.path("libs/glfw/include/GLFW/glfw3.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const glfw3_module = translate_c.createModule();
+
     const module = b.addModule("root", .{
         .root_source_file = b.path("src/zglfw.zig"),
         .imports = &.{
             .{ .name = "zglfw_options", .module = options_module },
+            .{ .name = "glfw3", .module = glfw3_module },
         },
     });
 
@@ -190,6 +198,9 @@ pub fn build(b: *std.Build) void {
             .root_source_file = b.path("src/zglfw.zig"),
             .target = target,
             .optimize = optimize,
+            .imports = &.{
+                .{ .name = "glfw3", .module = glfw3_module },
+            },
         }),
     });
     addIncludePaths(b, tests.root_module, target, options);
